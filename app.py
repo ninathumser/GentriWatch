@@ -3,10 +3,6 @@ import json
 import numpy as np
 import pandas as pd
 
-#2021 GentriFactor
-import random
-random.seed(42)
-
 from sklearn.cluster import KMeans
 
 import dash
@@ -17,6 +13,10 @@ import dash_table
 
 import plotly.express as px
 import plotly.graph_objs as go
+
+# 2021 GentriFactor
+import random
+random.seed(42)
 
 external_stylesheets = []
 
@@ -112,8 +112,8 @@ def create_figure_geomap(df_geomap, kiez, feature, zoom=9, center=map_center):
                                     center=center,
                                     opacity=0.2
                                     )
-    fig_temp.update_traces(marker = dict(line_color='rgb(0,0,0)',
-                                         line_width=5))
+    fig_temp.update_traces(marker=dict(line_color='rgb(0,0,0)',
+                                       line_width=5))
 
     fig.add_trace(fig_temp.data[0])
 
@@ -128,7 +128,7 @@ def create_figure_geomap(df_geomap, kiez, feature, zoom=9, center=map_center):
                       showlegend=False,
                       coloraxis_showscale=True,
                       coloraxis=dict(colorbar_x=1,
-                                     #colorbar_y=0,
+                                     # colorbar_y=0,
                                      colorbar_len=1,
                                      colorbar_thickness=15,
                                      colorbar_title='',
@@ -203,7 +203,7 @@ def create_figure_sunburst(df_sunburst, kiez):
             colors=counts,
             colorscale='deep',
         ),
-        #hovertemplate='Numer of trips to <b>%{label}</b>:<br> %{customdata[0]:,}<extra></extra>',
+        # hovertemplate='Numer of trips to <b>%{label}</b>:<br> %{customdata[0]:,}<extra></extra>',
     ))
 
     fig_sunburst.update_layout(**fig_layout_defaults,
@@ -220,18 +220,18 @@ def create_chart_development(df_dev, feature):
     # Create and style traces
     for i, j in enumerate(df_dev.Bezirksname.unique()):
         chart_dev.add_trace(go.Scatter(x=df_dev['year'],
-                                       y=df_dev.loc[df_dev['Bezirksname']== j, feature],
+                                       y=df_dev.loc[df_dev['Bezirksname'] == j, feature],
                                        name=j,
                                        line=dict(color=colors[i], width=2)))
 
     chart_dev.update_xaxes(range=[2008, 2020])
 
-    #if '_perc' in feature and feature not in dropdown_options.keys():
+    # if '_perc' in feature and feature not in dropdown_options.keys():
     #    if 'cng' in feature:
     #        feature_name = feature[:-9]
     #    else:
     #        feature_name = feature[:-5]
-    #else:
+    # else:
     #    if 'cng' in feature:
     #        feature_name = feature[:-4]
     #    else:
@@ -263,7 +263,7 @@ def create_chart_histogram(year, feature, kiez):
         go.Scatter(x=[data_hist.loc[data_hist['Bezirksname'] == kiez, feature].item() for _ in range(45)],
                    mode="lines",
                    line=go.scatter.Line(color='gray', dash='dot'),
-                   hovertemplate=(f'{kiez} in {year}<extra></extra>'),
+                   hovertemplate=f'{kiez} in {year}<extra></extra>',
                    showlegend=False))
 
     chart_hist.update_yaxes(title='', visible=True, showticklabels=True)
@@ -295,7 +295,7 @@ def create_figure_clustering(df_clustering, centers, year, kiez):
                      range_x=[-4.5, 6.5],
                      range_y=[-4, 6],
                      size_max=50,
-                     #animation_frame='year',
+                     # animation_frame='year',
                      color_continuous_scale='deep'
                      )
 
@@ -323,8 +323,8 @@ def create_figure_clustering(df_clustering, centers, year, kiez):
             hoverinfo='skip'
         )
     )
-    fig.update_yaxes(title = 'GentriComponent 1', visible=True, showticklabels=True)
-    fig.update_xaxes(title = 'GentriComponent 2', visible=True, showticklabels=True)
+    fig.update_yaxes(title='GentriComponent 1', visible=True, showticklabels=True)
+    fig.update_xaxes(title='GentriComponent 2', visible=True, showticklabels=True)
     title_text = '2D Representation of Clusters'
     fig.update_layout(**fig_layout_defaults,
                       title={'text': title_text, 'font_size': 15, 'font_family': 'Helvetica'},
@@ -335,10 +335,10 @@ def create_figure_clustering(df_clustering, centers, year, kiez):
 
 def create_figure_factor(df_clustering, kiez):
     kiez_df = df_clustering.loc[df_clustering['Bezirksname'] == kiez]
-    clusters = kiez_df['cluster'].unique()
-    cluster_change = kiez_df.loc[kiez_df['cluster'].diff()[kiez_df['cluster'].diff() > 0].index, 'year'].values
+    # clusters = kiez_df['cluster'].unique()
+    # cluster_change = kiez_df.loc[kiez_df['cluster'].diff()[kiez_df['cluster'].diff() > 0].index, 'year'].values
 
-    colors = ['rgb(156,219,165)', 'rgb(76,153,160)', 'rgb(62,82,143)', 'rgb(4,90,141)', 'rgb(5,48,97)']
+    # colors = ['rgb(156,219,165)', 'rgb(76,153,160)', 'rgb(62,82,143)', 'rgb(4,90,141)', 'rgb(5,48,97)']
 
     fig = go.Figure()
 
@@ -348,7 +348,7 @@ def create_figure_factor(df_clustering, kiez):
                    name=f'{kiez}',
                    mode='lines',
                    line=go.scatter.Line(color='rgb(237,105,37,0.5)'),
-                   #line=go.scatter.Line(color=colors[0]),
+                   # line=go.scatter.Line(color=colors[0]),
                    hovertemplate=(f'<b>{kiez}</b>'
                                   + '<br> Factor: %{y:.2f}<extra></extra>')))
     fig.add_trace(
@@ -356,23 +356,23 @@ def create_figure_factor(df_clustering, kiez):
                    y=[kiez_df.loc[kiez_df['year'] == 2019, 'factor'].values[0],
                       (1+preds_2020_cng.loc[preds_2020_cng['Bezirksname'] == kiez, 'factor_cng'].values[0]) *
                       kiez_df.loc[kiez_df['year'] == 2019, 'factor'].values[0],
-                      #faking values for 2021
-                      (1 + preds_2020_cng.loc[preds_2020_cng['Bezirksname'] == kiez, 'factor_cng'].values[0]*(1+random.random())) *
-                      kiez_df.loc[kiez_df['year'] == 2019, 'factor'].values[0]
-                      #preds_2020.loc[preds_2020['Bezirksname'] == kiez, 'factor'].values[0],
-                      #preds_2021.loc[preds_2020['Bezirksname'] == kiez, 'factor'].values[0],
-                      #preds_2024.loc[preds_2020['Bezirksname'] == kiez, 'factor'].values[0]
+                      # 2021
+                      (1 + preds_2020_cng.loc[preds_2020_cng['Bezirksname'] == kiez, 'factor_cng'].values[0]
+                       * (1 + random.random())) * kiez_df.loc[kiez_df['year'] == 2019, 'factor'].values[0]
+                      # preds_2020.loc[preds_2020['Bezirksname'] == kiez, 'factor'].values[0],
+                      # preds_2021.loc[preds_2020['Bezirksname'] == kiez, 'factor'].values[0],
+                      # preds_2024.loc[preds_2020['Bezirksname'] == kiez, 'factor'].values[0]
                       ],
                    name='Prediction 2020-2021',
                    mode='lines',
                    line=go.scatter.Line(color='rgb(237,105,37,0.5)', dash='dot'),
-                   #showlegend=False,
+                   # showlegend=False,
                    hovertemplate=(f'<b>{kiez}</b>'
                                   + '<br> Factor: %{y:.2f}<extra></extra>')))
 
     # adding lines for clusters that kiez belonged to
-    #i = 0
-    #for c in clusters:
+    # i = 0
+    # for c in clusters:
     #    i += 1
     #    cluster_df = df_clustering.groupby(['year', 'cluster'], as_index=False).mean()
     #    c_df = cluster_df[cluster_df['cluster'] == c]
@@ -386,7 +386,7 @@ def create_figure_factor(df_clustering, kiez):
     #                                 + '<br> Factor: %{y:.2f}<extra></extra>')))
 
     # adding vertical line to mark when the cluster changed
-    #for cc in cluster_change:
+    # for cc in cluster_change:
     #    fig.add_trace(
     #        go.Scatter(x=[cc for i in range(100)],
     #                   y=[i for i in range(100)],
@@ -415,14 +415,14 @@ def create_selection(year):
     data = data_original.copy()
     if year:
         data = data[data.year == year]
-    #if kiez:
+    # if kiez:
     #    data = data[data.Bezirksname == kiez]
     return data
 
 
 def compute_geomap_data(year, df_clustering):
     data = create_selection(year)
-    data = data[data['Bezirksname']!='Berlin']
+    data = data[data['Bezirksname'] != 'Berlin']
 
     data_cluster = df_clustering.loc[:, ['Bezirksname', 'year', 'cluster', 'factor']]
 
@@ -437,9 +437,9 @@ def compute_flow_data(kiez, year):
                     'SYR', 'VNM', 'USA', 'not_identified', 'EU_other', 'JUGO_other',
                     'UDSSR_other', 'Islamic_other', 'other', 'DEU']
 
-    #if selection == 'Absolute':
+    # if selection == 'Absolute':
     #    country_cols = cols
-    #else:
+    # else:
     #    country_cols = [f'{c}_perc' for c in cols]
 
     data = create_selection(year)
@@ -481,7 +481,7 @@ def compute_table_data(kiez, year, df_clustering):
                   'sqm_price_all', 'rent_cold',
                   #'sqm_price_lower', 'sqm_price_upper',
                   'apt_size', 'net_income',  'upper_quality',
-                  'millenials_perc','65_above_perc',
+                  'millenials_perc', '65_above_perc',
                   'total_foreigners_perc',
                   ]
 
@@ -526,7 +526,7 @@ def compute_development_data(kiez, feature):
     dev_kiez = data.loc[data.Bezirksname.isin([kiez, 'Berlin']), dev_cols]
 
     bezirk = dev_kiez.loc[dev_kiez['Bezirksname'] == kiez, 'Name'].unique()[0]
-    dev_bezirk = data.loc[data.Name==bezirk, dev_cols].groupby(['Name', 'year'], as_index=False).mean()
+    dev_bezirk = data.loc[data.Name == bezirk, dev_cols].groupby(['Name', 'year'], as_index=False).mean()
     dev_bezirk['Bezirksname'] = bezirk
 
     dev_data = pd.concat([dev_kiez, dev_bezirk], axis=0, ignore_index=True)
@@ -544,7 +544,7 @@ def compute_clustering_data(n_clusters):
     cluster_centers = pd.DataFrame(kmeans.fit(principal_components).cluster_centers_)
 
     clustering_data = pd.DataFrame(data=np.concatenate((info, principal_components, clusters, gentri_factor), axis=1),
-                          columns=['Bezirksname', 'Name', 'year', 'pc_1', 'pc_2', 'cluster', 'factor'])
+                                   columns=['Bezirksname', 'Name', 'year', 'pc_1', 'pc_2', 'cluster', 'factor'])
     clustering_data[['pc_1', 'pc_2', 'factor']] = clustering_data[['pc_1', 'pc_2', 'factor']].astype('float')
     clustering_data['cluster'] = clustering_data['cluster'].astype('int')
 
@@ -556,21 +556,21 @@ def compute_clustering_data(n_clusters):
 # ######################################
 
 dropdown_options = {'sqm_price_all': 'Square Meter Price (in EUR)',
-            'total': 'Total Population',
-            'pop_per_sqm': 'Population per km2',
-            'area_sqkm': 'Area (in km2)',
-            'sqm_price_lower': 'Square Meter Price (in EUR) - lower',
-            'sqm_price_upper': 'Square Meter Price (in EUR) - upper',
-            'rent_cold': 'Rent cold (in EUR)',
-            'apt_size': 'Apartment Size (in m2)',
-            'net_income': 'Household Net Income (in EUR)',
-            'upper_quality': 'Percentage Upper Quality Housing',
-            'children_perc': 'Percentage Population < 18y',
-            'millenials_perc': 'Percentage Population Millenials',
-            '65_above_perc': 'Percentage Population > 65y',
-            'total_foreigners_perc': 'Percentage Pop. with Migration History',
-            'leisure_part': 'Percentage Park Area'
-            }
+                    'total': 'Total Population',
+                    'pop_per_sqm': 'Population per km2',
+                    'area_sqkm': 'Area (in km2)',
+                    'sqm_price_lower': 'Square Meter Price (in EUR) - lower',
+                    'sqm_price_upper': 'Square Meter Price (in EUR) - upper',
+                    'rent_cold': 'Rent cold (in EUR)',
+                    'apt_size': 'Apartment Size (in m2)',
+                    'net_income': 'Household Net Income (in EUR)',
+                    'upper_quality': 'Percentage Upper Quality Housing',
+                    'children_perc': 'Percentage Population < 18y',
+                    'millenials_perc': 'Percentage Population Millenials',
+                    '65_above_perc': 'Percentage Population > 65y',
+                    'total_foreigners_perc': 'Percentage Pop. with Migration History',
+                    'leisure_part': 'Percentage Park Area'
+                    }
 
 kiez_initial = 'Regierungsviertel'
 year_initial = 2019
@@ -646,8 +646,7 @@ app.layout = html.Div([
             html.Label('Select Number of Clusters'),
             dcc.Input(id="input_nclusters", type='number',
                       #placeholder='Select Number of Clusters',
-                      value=6
-                    ),
+                      value=6),
         ]),
     ]),
 
@@ -675,7 +674,7 @@ app.layout = html.Div([
                             'fontWeight': 'bold'},
                         style_cell_conditional=[
                             {'if': {'column_id': 'indicator'},
-                                    'textAlign': 'left'},
+                             'textAlign': 'left'},
                         ],
                     )
                 ])
@@ -710,14 +709,12 @@ app.layout = html.Div([
                 html.Div(className="fix columns pretty_container", children=[
                     dcc.Graph(id='feature_dev_chart',
                               figure=chart_development_initial,
-                              config={"displayModeBar": False}
-                    )
+                              config={"displayModeBar": False})
                 ]),
                 html.Div(className="fix columns pretty_container", children=[
                     dcc.Graph(id='feature_inc_chart',
                               figure=chart_increase_initial,
-                              config={"displayModeBar": False}
-                    )
+                              config={"displayModeBar": False})
                 ]),
             ]),
             html.Div(className="row", children=[
@@ -904,6 +901,7 @@ def update_development_figures(kiez, feature, year):
 
     return chart_development, chart_increase, histogram_feature, histogram_increase
 
+
 # Cluster section
 @app.callback([Output('cluster_figure', 'figure'),
                Output('factor_figure', 'figure')],
@@ -918,9 +916,6 @@ def update_cluster_figure(n_clusters, kiez, year):
     fig_factor = create_figure_factor(cluster_data, kiez)
 
     return fig_cluster, fig_factor
-
-
-
 
 
 if __name__ == '__main__':
