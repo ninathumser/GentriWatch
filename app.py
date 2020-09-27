@@ -33,7 +33,7 @@ with open('./dataframes/features_short2long.json') as f:
     features_short2long = json.load(f)
 with open('./dataframes/features_long2short.json') as f:
     features_long2short = json.load(f)
-with open('./dataframes/map.geojson') as f:
+with open('./assets/map.geojson') as f:
     geomap = json.load(f)
 with open('./dataframes/lor_mapper.json') as f:
     lor_mapper = json.load(f)

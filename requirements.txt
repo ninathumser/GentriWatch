@@ -2,6 +2,7 @@ joblib
 pandas
 numpy
 sklearn
+matplotlib
 plotly
 tqdm
 
