@@ -22,26 +22,30 @@ external_stylesheets = []
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-data_original = joblib.load('./dataframes/df_data.csv')
+data_lor = joblib.load('./dataframes/data_app/final_lor.csv')
+data_pr = joblib.load('./dataframes/data_app/final_pr.csv')
 
-data_clustering = joblib.load('./dataframes/df_clustering.csv')
-principal_components = joblib.load('./dataframes/principal_components.csv')
-gentri_factor = joblib.load('./dataframes/gentri_factor.csv')
-preds_2020_cng = joblib.load('./dataframes/predictions_2020_cng.csv')
+data_clustering = joblib.load('./dataframes/df_clustering.csv')              # ---> missing
+principal_components = joblib.load('./dataframes/principal_components.csv')  # ---> missing
+gentri_factor = joblib.load('./dataframes/gentri_factor.csv')                # ---> missing
+preds_2020_cng = joblib.load('./dataframes/predictions_2020_cng.csv')        # ---> missing
 
-with open('./dataframes/features_short2long.json') as f:
+with open('./assets/map_lor.geojson') as f:
+    geomap_lor = json.load(f)
+with open('./assets/map_pr_new.geojson') as f:
+    geomap_pr = json.load(f)
+
+with open('./dataframes/data_app/dictionaries/features_short2long.json') as f:
     features_short2long = json.load(f)
-with open('./dataframes/features_long2short.json') as f:
+with open('./dataframes/data_app/dictionaries/features_long2short.json') as f:
     features_long2short = json.load(f)
-with open('./assets/map.geojson') as f:
-    geomap = json.load(f)
-with open('./dataframes/lor_mapper.json') as f:
+with open('./dataframes/data_app/dictionaries/lor_mapper.json') as f:
     lor_mapper = json.load(f)
-with open('./dataframes/region_mapper.json') as f:
+with open('./dataframes/data_app/dictionaries/region_mapper.json') as f:
     region_mapper = json.load(f)
-with open('./dataframes/migr_mapper.json') as f:
+with open('./dataframes/data_app/dictionaries/migr_mapper.json') as f:
     migr_mapper = json.load(f)
-with open('./dataframes/age_mapper.json') as f:
+with open('./dataframes/data_app/dictionaries/age_mapper.json') as f:
     age_mapper = json.load(f)
 
 
@@ -69,7 +73,7 @@ def create_figure_geomap(df_geomap, kiez, feature, zoom=9, center=map_center):
     geomap_data = df_geomap
 
     fig = px.choropleth_mapbox(geomap_data,
-                               geojson=geomap,
+                               geojson=geomap_lor,
                                color=feature,
                                color_continuous_scale='Viridis',
                                locations='LOR',
@@ -93,7 +97,7 @@ def create_figure_geomap(df_geomap, kiez, feature, zoom=9, center=map_center):
     fig.data[0]['hovertemplate'] = hovertemplate
 
     # draw the selected zone
-    geo_json_selected = geomap.copy()
+    geo_json_selected = geomap_lor.copy()
     geo_json_selected['features'] = [
         f for f in geo_json_selected['features'] if
         f['properties']['name'] == kiez
@@ -412,7 +416,7 @@ def create_figure_factor(df_clustering, kiez):
 # ######################################
 
 def create_selection(year):
-    data = data_original.copy()
+    data = data_lor.copy()
     if year:
         data = data[data.year == year]
     # if kiez:
@@ -520,7 +524,7 @@ def compute_table_data(kiez, year, df_clustering):
 
 
 def compute_development_data(kiez, feature):
-    data = data_original.copy()
+    data = data_lor.copy()
     dev_cols = ['Bezirksname', 'Name', 'year', feature, f'{feature}_cng']
 
     dev_kiez = data.loc[data.Bezirksname.isin([kiez, 'Berlin']), dev_cols]
@@ -793,7 +797,7 @@ def click_action_feature(click_data_sunburst, click_data_sunkey, click_data_tabl
 
         if (component == 'flow_sunburst_figure'):  #| (component == 'flow_sankey_figure'):
             feature = trg[0]['value']['points'][0]['label']
-            if feature not in data_original.columns:
+            if feature not in data_lor.columns:
                 feature = features_short[feature]
 
         if component == 'table':
@@ -889,7 +893,7 @@ def update_flow_figures(year, kiez, n_clusters):
 def update_development_figures(kiez, feature, year):
     if feature in ['cluster', 'factor']:
         feature = 'sqm_price_all'
-    #if feature not in data_original.columns:
+    #if feature not in data_lor.columns:
     #    feature = features_short[feature]
     development_data = compute_development_data(kiez, feature)
 
